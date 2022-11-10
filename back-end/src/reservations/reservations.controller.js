@@ -103,6 +103,18 @@ function validProperties(req, res, next) {
   next();
 }
 
+function noTuesday(req, res, next) {
+  const date = req.body.data.reservation_date;
+  const weekday = new Date(date).getUTCDay();
+  if (weekday !== 2) {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "Restaurant is closed on Tuesdays.",
+  })
+}
+
 const reservationExists = async (req, res, next) => {
   const { reservationId } = req.params;
   const foundReservation = await service.read(reservationId);
@@ -201,7 +213,7 @@ const update = async (req, res) => {
 
 module.exports = {
   list: [asyncErrorBoundary(searchReservationExists), asyncErrorBoundary(list)],
-  create: [validProperties, asyncErrorBoundary(create)],
+  create: [validProperties, noTuesday, asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(reservationExists), read],
   updateStatus: [
     asyncErrorBoundary(reservationExists),
@@ -211,6 +223,7 @@ module.exports = {
   update: [
     asyncErrorBoundary(reservationExists),
     validProperties,
+    noTuesday,
     validUpdateRes,
     asyncErrorBoundary(update),
   ],
