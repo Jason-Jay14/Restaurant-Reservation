@@ -62,12 +62,6 @@ function validProperties(req, res, next) {
     errors.push('reservation_date is missing or is empty or is not a date');
   }
 
-  if (new Date(reservation_date).getDay() == 1) {
-    errors.push(
-      'The reservation date is a Tuesday and the restaurant is closed on Tuesdays.'
-    );
-  }
-
   if (
     !reservation_time ||
     reservation_time === '' ||
@@ -222,7 +216,7 @@ module.exports = {
   ],
   update: [
     asyncErrorBoundary(reservationExists),
-    validProperties,
+    validProperties, 
     noTuesday,
     validUpdateRes,
     asyncErrorBoundary(update),
